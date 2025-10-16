@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAKSHYA PROJECT MANAGEMENT - QR Code Generator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #1e3a8a, #dc2626);
+      background-attachment: fixed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      color: #fff;
+    }
+
+    /* 🔹 Top heading */
+    .main-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 25px;
+      margin-top: 10px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #ffffff;
+      text-shadow: 0 0 15px rgba(255,255,255,0.4);
+    }
+
+    .box {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      padding: 25px 20px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      text-align: center;
+      width: 95%;
+      max-width: 420px;
+      transition: 0.3s;
+    }
+
+    .box:hover {
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+
+    input {
+      width: 90%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 6px;
+      font-size: 14px;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    input::placeholder {
+      color: rgba(255,255,255,0.7);
+    }
+
+    input:focus {
+      border-color: #60a5fa;
+      background: rgba(255,255,255,0.25);
+    }
+
+    button {
+      padding: 10px 18px;
+      margin: 6px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.25s ease;
+    }
+
+    #generate {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(37,99,235,0.6);
+    }
+
+    #generate:hover {
+      box-shadow: 0 0 20px rgba(37,99,235,0.9);
+      transform: scale(1.03);
+    }
+
+    #download {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(220,38,38,0.6);
+    }
+
+    #download:hover {
+      box-shadow: 0 0 20px rgba(220,38,38,0.9);
+      transform: scale(1.03);
+    }
+
+    #qrcode-container {
+      margin-top: 20px;
+      max-height: 500px;
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
+      padding: 10px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .note {
+      font-size: 12px;
+      color: rgba(255,255,255,0.8);
+      margin-top: 10px;
+    }
+
+    canvas {
+      border-radius: 10px;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- 🔹 Website heading -->
+  <div class="main-title">LAKSHYA PROJECT MANAGEMENT</div>
+
+  <div class="box">
+    <h2> QR Code Generator</h2>
+    <input type="text" id="text" placeholder="Enter link or text" value="https://example.com"><br>
+    <button id="generate">Generate</button>
+    <button id="download">Download (HD)</button>
+
+    <div id="qrcode-container">
+      <div id="qrcode">Your QR will appear here</div>
+    </div>
+
+    <div class="note">Paste a link, click Generate, then Download for a print-quality PNG.</div>
+  </div>
+
+  <!-- QRCode.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    const textEl = document.getElementById("text");
+    const qrContainer = document.getElementById("qrcode");
+    const generateBtn = document.getElementById("generate");
+    const downloadBtn = document.getElementById("download");
+    let qr;
+
+    function generate() {
+      const text = textEl.value.trim();
+      if (!text) {
+        alert("Please enter text or a link");
+        return;
+      }
+      qrContainer.innerHTML = "";
+
+      const size = 800; // QR size
+      const margin = 50; // quiet zone
+      const totalSize = size + 2 * margin;
+
+      const tempDiv = document.createElement("div");
+      const tempQR = new QRCode(tempDiv, {
+        text: text,
+        width: size,
+        height: size,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      setTimeout(() => {
+        const canvas = tempDiv.querySelector("canvas");
+        if (!canvas) return;
+
+        const finalCanvas = document.createElement("canvas");
+        finalCanvas.width = totalSize;
+        finalCanvas.height = totalSize;
+        const ctx = finalCanvas.getContext("2d");
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, totalSize, totalSize);
+        ctx.drawImage(canvas, margin, margin, size, size);
+
+        qrContainer.innerHTML = "";
+        qrContainer.appendChild(finalCanvas);
+      }, 100);
+    }
+
+    function download() {
+      const canvas = qrContainer.querySelector("canvas");
+      if (!canvas) {
+        alert("Generate the QR first!");
+        return;
+      }
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = "qrcode_hd.png";
+      link.click();
+    }
+
+    generateBtn.addEventListener("click", generate);
+    downloadBtn.addEventListener("click", download);
+  </script>
+</body>
+</html>
